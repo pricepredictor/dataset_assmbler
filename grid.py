@@ -9,26 +9,34 @@ class Grid:
     def __init__(self, cells):
         self.cells = cells
 
-    def add_entrie(self, entrie: Entrie, type: EntrieType):
-        c = entrie.coorditates
+
+    def find_suitable_position(self, lat: float, lon: float):
         for i in range(len(self.cells) - 1):
             m = midpoint(self.cells[i][0].center, self.cells[i + 1][0].center)
-            if c[0] > m[0]:
+            if lat > m[0]:
                 for j in range(len(self.cells[i]) - 1):
                     m = midpoint(self.cells[i][j].center, self.cells[i][j + 1].center)
-                    if m[1] > c[1]:
-                        self.cells[i][j].add_entrie(entrie, type)
-                        return i, j
+                    if m[1] > lon:
+                        return (i, j)
+
+
+    def add_entrie(self, entrie: Entrie, type: EntrieType):
+        pos = find_suitable_position(*entrie.coorditates)
+        if not pos is None:
+            self.cells[pos[0]][pos[1]].add_entrie(entrie, type)
+
 
     def save_cell_centers(self, filename: str):
         with open(f'./tabula-rasa/{filename}', 'w') as file:
             file.write('\n'.join(['; '.join([str(cell.center) for cell in row]) for row in self.cells]))
+
 
     def load_cell_centers(filename: str):
         with open(f'./tabula-rasa/{filename}', 'r') as file:
             rows = file.read().replace('(', '').replace(')', '').split('\n')
         cells = [[Cell(tuple(float(i) for i in c.split(', '))) for c in row.split('; ')] for row in rows]
         return Grid(cells)
+
 
     def make_grid(top_left, bottom_right, initial_size=100):
         '''Factory method for creating Grid instances'''

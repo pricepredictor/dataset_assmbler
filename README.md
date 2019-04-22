@@ -1,2 +1,2 @@
 # dataset_assmbler
-assemle parsed data into a dataset
+Assemle parsed data into a dataset

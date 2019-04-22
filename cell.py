@@ -1,9 +1,18 @@
+from enum import Enum
+
 from utils import midpoint
 from entrie import Entrie, EntrieType
+
+class CellTypes(Enum):
+    URBAN = 1
+    PARK = 2
+    WATER = 3
+
 
 class Cell:
     def __init__(self, center):
         self.center = center
+        self.type = CellTypes.URBAN
         self.entries = {
             EntrieType.VACANCY: [], 
             EntrieType.APARTMENT: [], 
