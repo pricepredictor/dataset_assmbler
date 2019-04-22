@@ -1,14 +1,18 @@
 import shapely.geometry
 import pyproj
 
-from utils import midpoint
+from typing import List
+from math import ceil
+
+from utils import midpoint, distance
 from entrie import Entrie, EntrieType 
 from cell import Cell
 
 class Grid:
-    def __init__(self, cells):
+    def __init__(self, cells: List[List[Cell]]):
         self.cells = cells
-
+        self.dx = distance(cells[0][0].center, cells[0][1].center)
+        self.dy = distance(cells[0][0].center, cells[1][0].center)
 
     def find_suitable_position(self, lat: float, lon: float):
         for i in range(len(self.cells) - 1):
@@ -18,6 +22,22 @@ class Grid:
                     m = midpoint(self.cells[i][j].center, self.cells[i][j + 1].center)
                     if m[1] > lon:
                         return (i, j)
+
+
+    def get_all_entries_in_radius(self, coordinates, r: float):
+        pos = find_suitable_position(*coorditates)
+        if pos in None:
+            return {}
+
+        i0, j0 = pos
+        aggrigated_cell = self.cells[i0][j0]
+        i_steps, j_steps = ceil(r / self.dy), ceil(r / self.dx)
+
+        for i in range(max(0, i0 - i_steps), min(len(self.sells), i0 + i_steps + 1)):
+            for j in range(max(0, j0 - j_steps), min(len(self.sells[0]), j0 + j_steps + 1)):
+                aggrigated_cell += self.cells[i][j]
+
+        return aggrigated_cell.entries
 
 
     def add_entrie(self, entrie: Entrie, type: EntrieType):
@@ -38,8 +58,26 @@ class Grid:
         return Grid(cells)
 
 
-    def make_grid(top_left, bottom_right, initial_size=100):
-        '''Factory method for creating Grid instances'''
+    def make_grid_in_degrees(top_left, bottom_right, step=0.0005):
+        '''Makes a Grid instance regulary spaced in degrees'''
+
+        lat_max, lon_min = top_left
+        lat_min, lon_max = bottom_right
+
+        cells = []
+        lon = lon_min
+        while lon < lon_max:
+            lat, row = lat_min, []
+            while lat < lat_max:
+                row.append(Cell(midpoint((lat, lon), (lat + step, lon + step))))
+                lat += step
+            cells.append(row)
+            lon += step * 2
+
+        return Grid(cells)
+
+    def make_grid_in_meters(top_left, bottom_right, step=100):
+        '''Makes a Grid instance regulary spaced in meters'''
         
         # Set up projections
         p_ll = pyproj.Proj(init='epsg:4326')
@@ -49,7 +87,7 @@ class Grid:
         nw = shapely.geometry.Point(top_left)
         se = shapely.geometry.Point(bottom_right)
 
-        stepsize = initial_size
+        stepsize = step
 
         # Project corners to target projection
         s = pyproj.transform(p_ll, p_mt, nw.x, nw.y) # Transform NW point to 3857
@@ -65,7 +103,7 @@ class Grid:
                 nw_point = shapely.geometry.Point(pyproj.transform(p_mt, p_ll, x, y))
                 se_point = shapely.geometry.Point(pyproj.transform(p_mt, p_ll, x + stepsize, y + stepsize))
                 row.append(Cell(midpoint((nw_point.x, nw_point.y), (se_point.x, se_point.y))))
-                y += stepsize
+                y += stepsize * 1.314
             cells.append(row)
             x -= stepsize
 
