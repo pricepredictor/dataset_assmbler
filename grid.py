@@ -20,8 +20,18 @@ class Grid:
                         self.cells[i][j].add_entrie(entrie, type)
                         return i, j
 
+    def save_cell_centers(self, filename: str):
+        with open(f'./tabula-rasa/{filename}', 'w') as file:
+            file.write('\n'.join(['; '.join([str(cell.center) for cell in row]) for row in self.cells]))
+
+    def load_cell_centers(filename: str):
+        with open(f'./tabula-rasa/{filename}', 'r') as file:
+            rows = file.read().replace('(', '').replace(')', '').split('\n')
+        cells = [[Cell(tuple(float(i) for i in c.split(', '))) for c in row.split('; ')] for row in rows]
+        return Grid(cells)
+
     def make_grid(top_left, bottom_right, initial_size=100):
-        """Factory method for creating Grid instances"""
+        '''Factory method for creating Grid instances'''
         
         # Set up projections
         p_ll = pyproj.Proj(init='epsg:4326')
