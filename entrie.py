@@ -11,13 +11,14 @@ class EntrieType(Enum):
     CAFE = 7
     OFFICE = 8
     POINT_OF_INTEREST = 9
+    SCHOOLS = 10
+    KINDERGARDENS = 11
 
 
 class Entrie:
     def __init__(self, coordinates, weight=None):
         self.coorditates = coordinates
         self.weight = weight
-
 
     def __repr__(self):
         return f"({self.coorditates[0]}, {self.coorditates[1]}): {self.weight}"
