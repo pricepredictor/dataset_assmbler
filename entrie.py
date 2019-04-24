@@ -13,6 +13,13 @@ class EntrieType(Enum):
     POINT_OF_INTEREST = 9
     SCHOOLS = 10
     KINDERGARDENS = 11
+    HOSPITAL = 12
+    BANK = 13
+    UNIVERCITY = 14
+    CINEMA = 15
+    NIGHTLIFE = 16
+    GOVERNMENT = 17
+    LEISURE = 18
 
 
 class Entrie:
