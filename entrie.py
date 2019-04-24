@@ -2,24 +2,24 @@ from enum import Enum
 
 
 class EntrieType(Enum):
-    VACANCY = 1
-    APARTMENT = 2
-    SHOP = 3
-    BUS_STOP = 4
-    TRAM_STOP = 5
-    SUBWAY_STATION = 6
-    CAFE = 7
-    OFFICE = 8
-    POINT_OF_INTEREST = 9
-    SCHOOLS = 10
-    KINDERGARDENS = 11
-    HOSPITAL = 12
-    BANK = 13
-    UNIVERCITY = 14
-    CINEMA = 15
-    NIGHTLIFE = 16
-    GOVERNMENT = 17
-    LEISURE = 18
+    VACANCY = 'vacancy'
+    APARTMENT = 'apartement'
+    SHOP = 'shop'
+    BUS_STOP = 'bus_stop'
+    TRAM_STOP = 'tram_stop'
+    SUBWAY_STATION = 'subway_station'
+    CAFE = 'cafe'
+    OFFICE = 'office'
+    POINT_OF_INTEREST = 'point_of_interest'
+    SCHOOL = 'school'
+    KINDERGARDEN = 'kindergarden'
+    HOSPITAL = 'hospital'
+    BANK = 'bank'
+    UNIVERCITY = 'univercity'
+    CINEMA = 'cinema'
+    NIGHTLIFE = 'nightlife'
+    GOVERNMENT = 'government'
+    LEISURE = 'leisure'
 
 
 class Entrie:
