@@ -12,7 +12,6 @@ class EntrieType(Enum):
     OFFICE = 'office'
     POINT_OF_INTEREST = 'point_of_interest'
     SCHOOL = 'school'
-    KINDERGARDEN = 'kindergarden'
     HOSPITAL = 'hospital'
     BANK = 'bank'
     UNIVERCITY = 'univercity'
@@ -20,6 +19,7 @@ class EntrieType(Enum):
     NIGHTLIFE = 'nightlife'
     GOVERNMENT = 'government'
     LEISURE = 'leisure'
+    HOTEL = 'hotel'
 
 
 class Entrie:
