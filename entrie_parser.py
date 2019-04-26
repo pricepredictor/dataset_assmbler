@@ -31,7 +31,7 @@ parsed_entries = {
 
 for entrie_type, keywords in zip(keyword_dict. keys(), keyword_dict.values()):
     for keyword in keywords:
-        parsed_entries[entrie_type] += [[e[0]] for e in raw[keyword]]
+        parsed_entries[entrie_type] += [[[e[0][1], e[0][0]]] for e in raw[keyword] if len(e[0]) == 2]
         
 with open(f'./data/vacancies/{city_name}.csv') as file:
     vacancy_data = file.read()
@@ -39,7 +39,8 @@ with open(f'./data/vacancies/{city_name}.csv') as file:
 parsed_entries['vacancy'] = []
 for vacancy_line in vacancy_data.split('\n'):
     vacancy = vacancy_line.split('; ')
-    parsed_entries['vacancy'].append([[float(c) for c in vacancy[-2].split(', ')], int(vacancy[-1])])
+    lat, lon = [float(c) for c in vacancy[-2].split(', ')]
+    parsed_entries['vacancy'].append([[lat, lon], int(vacancy[-1])])
     
 with open(f'./data/entries/parsed/{city_name}.json', 'w') as f:
     raw = json.dump(parsed_entries, f)

@@ -26,24 +26,24 @@ class Grid:
                         return (i, j)
 
     def get_all_entries_in_radius(self, coordinates, r: float):
-        pos = find_suitable_position(*coorditates)
-        if pos in None:
+        pos = self.find_suitable_position(*coordinates)
+        if pos is None:
             return {}
 
         i0, j0 = pos
         aggrigated_cell = self.cells[i0][j0]
         i_steps, j_steps = ceil(r / self.dy), ceil(r / self.dx)
 
-        for i in range(max(0, i0 - i_steps), min(len(self.sells), i0 + i_steps + 1)):
-            for j in range(max(0, j0 - j_steps), min(len(self.sells[0]), j0 + j_steps + 1)):
+        for i in range(max(0, i0 - i_steps), min(len(self.cells), i0 + i_steps + 1)):
+            for j in range(max(0, j0 - j_steps), min(len(self.cells[0]), j0 + j_steps + 1)):
                 aggrigated_cell += self.cells[i][j]
 
         return aggrigated_cell.entries
 
-    def add_entrie(self, entrie: Entrie, type: EntrieType):
-        pos = find_suitable_position(*entrie.coorditates)
+    def add_entrie(self, entrie: Entrie, entrie_type: EntrieType):
+        pos = self.find_suitable_position(*entrie.coorditates)
         if not pos is None:
-            self.cells[pos[0]][pos[1]].add_entrie(entrie, type)
+            self.cells[pos[0]][pos[1]].add_entrie(entrie, entrie_type)
 
     def save_cell_centers(self, filename: str):
         with open(f'./tabula-rasa/{filename}', 'w') as file:

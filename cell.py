@@ -24,10 +24,21 @@ class Cell:
             EntrieType.CAFE: [],
             EntrieType.OFFICE: [],
             EntrieType.POINT_OF_INTEREST: [],
+            EntrieType.SCHOOL: [],
+            EntrieType.HOSPITAL: [],
+            EntrieType.BANK: [],
+            EntrieType.UNIVERCITY: [],
+            EntrieType.CINEMA: [],
+            EntrieType.NIGHTLIFE: [],
+            EntrieType.GOVERNMENT: [],
+            EntrieType.LEISURE: [],
+            EntrieType.HOTEL: [],
+            EntrieType.VACANCY: [],
         }
 
-    def add_entrie(self, entrie: Entrie, type: EntrieType):
-        self.entries[type].append(entrie)
+    def add_entrie(self, entrie: Entrie, entrie_type: EntrieType):
+        self.entries[entrie_type].append(entrie)
+
 
     def __add__(self, other):
         res = Cell(midpoint(self.center, other.center))
