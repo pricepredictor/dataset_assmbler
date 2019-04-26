@@ -18,12 +18,15 @@ class Grid:
     def find_suitable_position(self, lat: float, lon: float):
         for i in range(len(self.cells) - 1):
             m = midpoint(self.cells[i][0].center, self.cells[i + 1][0].center)
-            if lat > m[0]:
-                for j in range(len(self.cells[i]) - 1):
-                    m = midpoint(self.cells[i][j].center,
-                                 self.cells[i][j + 1].center)
-                    if m[1] > lon:
-                        return (i, j)
+            try:
+                if lat > m[0]:
+                    for j in range(len(self.cells[i]) - 1):
+                        m = midpoint(self.cells[i][j].center,
+                                    self.cells[i][j + 1].center)
+                        if m[1] > lon:
+                            return (i, j)
+            except(TypeError):
+                return
 
     def get_all_entries_in_radius(self, coordinates, r: float):
         pos = self.find_suitable_position(*coordinates)
