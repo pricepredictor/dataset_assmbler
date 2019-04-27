@@ -9,6 +9,14 @@ import pandas as pd
 from entrie import Entrie, EntrieType
 from utils import *
 
+city_dict = {
+    'spb': {
+        'center': (59.9343, 30.3351)
+    },
+    'smr': {
+        'center': (53.2415, 50.2212)        
+    }
+}
 
 def prepare_table(city_abbr):
     flats = pd.read_csv(
@@ -31,7 +39,7 @@ def assemble_dataset(city_abbr):
 
     flats = prepare_table(city_abbr)
 
-    R = 6371
+    p = 0.017453292519943295
     feature_list = []
     i = 0
     for row in flats.iterrows():
@@ -46,22 +54,20 @@ def assemble_dataset(city_abbr):
             'distance_to_subway': int(row['distance to subway']),
             'distance_to_center': int(row['distance_to_center'])
         }
-        lat, lon = row['latitude'], row['longitude']
+        lat1, lon1 = row['latitude'], row['longitude']
         for entry_type, entries in zip(entry_data.keys(), entry_data.values()):
             c = np.array([entry[0]
-                          for entry in entries if type(entry[0][0]) is float]).T
-            d = c.copy()
-            d[0] -= lat
-            d[0] *= (np.pi / 180)
-            d[1] -= lon
-            d[1] *= (np.pi / 180)
-            a = np.sin(d[0] / 2) * np.sin(d[0] / 2)
-            c = 2 * arctan2(np.sqrt(a), np.sqrt(1 - a)) + np.cos(lat * np.pi / 180) * \
-                np.cos(c[0] * np.pi / 180) * \
-                np.sin(d[1] / 2) * np.sin(d[1] / 2)
-            distances = R * c * 1000
+                        for entry in entries if type(entry[0][0]) is float]).T
+            lat2 = c[0]
+            lon2 = c[1]
+            a = 0.5 - np.cos((lat2 - lat1) * p)/2 + np.cos(lat1 * p) * np.cos(lat2 * p) * (1 - np.cos((lon2 - lon1) * p)) / 2
+            distances = (12742000 * np.arcsin(np.sqrt(a))).astype(int)
+
             if entry_type == 'shop' and np.nonzero(distances <= 1000)[0].shape[0] == 0:
                 break
+                
+            if entry_type in ['school', 'bus_stop']:
+                row_dict[f'distance_to_{entry_type}'] = min(distances)        
             for r in [500, 1000]:
                 indices = np.nonzero(distances <= r)[0]
                 if entry_type in ['vacancy']:
@@ -73,6 +79,7 @@ def assemble_dataset(city_abbr):
                 row_dict[f'{entry_type}_{str(r)}'] = indices.shape[0]
         else:
             feature_list.append(row_dict)
+            
         if i % 1000 == 0:
             print(i)
 
@@ -82,3 +89,4 @@ def assemble_dataset(city_abbr):
 
 if __name__ == "__main__":
     assemble_dataset('smr')
+    assemble_dataset('spb')
