@@ -20,7 +20,7 @@ city_dict = {
 
 def prepare_table(city_abbr):
     flats = pd.read_csv(
-        f'./data/flats/{city_abbr}.csv').drop(columns=['adress', 'subway_station'])
+        f'./data/flats/{city_abbr}.csv')
     cols = flats.columns.tolist()
     cols[-1], cols[-2] = cols[-2], cols[-1]
     cols = cols[-2:] + [cols[0]] + cols[1:-2]
@@ -28,8 +28,15 @@ def prepare_table(city_abbr):
     flats['price_per_m'] = (
         flats['price'] / flats['area']).map(lambda x: int(x))
     flats = flats.drop(columns=['price'])
-    flats['distance_to_center'] = [distance(
-        x, city_dict[city_abbr]['center']) for x in zip(flats.latitude, flats.longitude)]
+    try:
+        distances = []
+        for x in zip(flats.latitude, flats.longitude):
+            distances.append(distance(x, city_dict[city_abbr]['center']))
+        flats['distance_to_center'] = [distances]
+    except ValueError:
+        print(x)
+
+
     return flats
 
 
@@ -51,8 +58,8 @@ def assemble_dataset(city_abbr):
             'area': row['area'],
             'floor': int(row['floor']),
             'floors_total': int(row['floors_total']),
-            'distance_to_subway': int(row['distance to subway']),
-            'distance_to_center': int(row['distance_to_center'])
+            'distance_to_center': int(row['distance_to_center']),
+            'year': int(row['year']),
         }
         lat1, lon1 = row['latitude'], row['longitude']
         for entry_type, entries in zip(entry_data.keys(), entry_data.values()):
@@ -66,7 +73,7 @@ def assemble_dataset(city_abbr):
             if entry_type == 'shop' and np.nonzero(distances <= 1000)[0].shape[0] == 0:
                 break
                 
-            if entry_type in ['school', 'bus_stop']:
+            if entry_type in ['school', 'bus_stop', 'subway_station']:
                 row_dict[f'distance_to_{entry_type}'] = min(distances)        
             for r in [500, 1000]:
                 indices = np.nonzero(distances <= r)[0]
@@ -88,5 +95,7 @@ def assemble_dataset(city_abbr):
 
 
 if __name__ == "__main__":
-    assemble_dataset('smr')
-    assemble_dataset('spb')
+    prepare_table('smr')
+
+    #assemble_dataset('smr')
+    #assemble_dataset('spb')
