@@ -20,23 +20,16 @@ city_dict = {
 
 def prepare_table(city_abbr):
     flats = pd.read_csv(
-        f'./data/flats/{city_abbr}.csv')
+        f'./data/flats/{city_abbr}_domofond.csv')
     cols = flats.columns.tolist()
-    cols[-1], cols[-2] = cols[-2], cols[-1]
-    cols = cols[-2:] + [cols[0]] + cols[1:-2]
     flats = flats[cols]
     flats['price_per_m'] = (
-        flats['price'] / flats['area']).map(lambda x: int(x))
+        flats['price'] / flats['area']).map(lambda x: int(x // 1000))
     flats = flats.drop(columns=['price'])
-    try:
-        distances = []
-        for x in zip(flats.latitude, flats.longitude):
-            distances.append(distance(x, city_dict[city_abbr]['center']))
-        flats['distance_to_center'] = [distances]
-    except ValueError:
-        print(x)
-
-
+    distances = []
+    for x in zip(flats.latitude, flats.longitude):
+        distances.append(distance(x, city_dict[city_abbr]['center']))
+    flats['distance_to_center'] = distances
     return flats
 
 
@@ -49,9 +42,8 @@ def assemble_dataset(city_abbr):
     p = 0.017453292519943295
     feature_list = []
     i = 0
-    for row in flats.iterrows():
+    for index, row in flats.iterrows():
         i += 1
-        row = row[1]
         row_dict = {
             'price_per_m': int(row['price_per_m']),
             'rooms': int(row['rooms']),
@@ -95,7 +87,6 @@ def assemble_dataset(city_abbr):
 
 
 if __name__ == "__main__":
-    prepare_table('smr')
-
+    print(len( prepare_table('smr')))
     #assemble_dataset('smr')
     #assemble_dataset('spb')
