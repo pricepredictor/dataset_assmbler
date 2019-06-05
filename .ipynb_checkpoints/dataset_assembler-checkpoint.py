@@ -19,16 +19,22 @@ city_dict = {
 }
 
 def prepare_table(city_abbr):
-    houses = pd.read_csv(f'./data/houses/{city_abbr}.csv')
+    flats = pd.read_csv(
+        f'./data/flats/{city_abbr}_domofond.csv')
+    cols = flats.columns.tolist()
+    flats = flats[cols]
+    flats['price_per_m'] = (
+        flats['price'] / flats['area']).map(lambda x: int(x // 1000))
+    flats = flats.drop(columns=['price'])
     distances = []
-    for coords in zip(houses.latitude, houses.longitude):
-        distances.append(distance(coords, city_dict[city_abbr]['center']))
-    houses['distance_to_center'] = distances    
-    return houses
+    for x in zip(flats.latitude, flats.longitude):
+        distances.append(distance(x, city_dict[city_abbr]['center']))
+    flats['distance_to_center'] = distances
+    return flats
 
 
 def assemble_dataset(city_abbr):
-    with open(f'./data/entries/with_houses/{city_abbr}.json') as file:
+    with open(f'./data/entries/parsed/{city_abbr}.json') as file:
         entry_data = json.load(file)
 
     flats = prepare_table(city_abbr)
@@ -40,7 +46,12 @@ def assemble_dataset(city_abbr):
         i += 1
         row_dict = {
             'price_per_m': int(row['price_per_m']),
+            'rooms': int(row['rooms']),
+            'area': row['area'],
+            'floor': int(row['floor']),
+            'floors_total': int(row['floors_total']),
             'distance_to_center': int(row['distance_to_center']),
+            'year': int(row['year']),
         }
         lat1, lon1 = row['latitude'], row['longitude']
         for entry_type, entries in zip(entry_data.keys(), entry_data.values()):
@@ -64,22 +75,7 @@ def assemble_dataset(city_abbr):
                     mean = int(statistics.mean(salaries))
                     row_dict[f'mean_salaries_{r}'] = mean
                     row_dict[f'median_salaries_{r}'] = median
-                
-                if entry_type not in ['with_floors', 'with_price', 'with_age']:
-                    row_dict[f'{entry_type}_{str(r)}'] = indices.shape[0]
-                
-            for r in [200, 500]:
-                indices = np.nonzero(distances <= r)[0]
-                if entry_type in ['with_floors', 'with_age']:
-                    weights = [entries[i][1] for i in indices] or [0]
-                    median = int(statistics.median(weights))
-                    mean = int(statistics.mean(weights))
-                    row_dict[f'mean_{entry_type.split("_")[1]}_{r}'] = mean
-                    row_dict[f'median_{entry_type.split("_")[1]}_{r}'] = median
-                
-                if entry_type == 'with_price':
-                    row_dict[f'priced_houses_{str(r)}'] = indices.shape[0]
-
+                row_dict[f'{entry_type}_{str(r)}'] = indices.shape[0]
         else:
             feature_list.append(row_dict)
             
@@ -87,7 +83,10 @@ def assemble_dataset(city_abbr):
             print(i)
 
     dataset = pd.DataFrame(feature_list)
-    dataset.to_csv(f'./datasets/house/{city_abbr}.csv', index=False)
+    dataset.to_csv(f'./datasets/{city_abbr}.csv', index=False)
 
-if __name__ == '__main__':
-    assemble_dataset('spb')
+
+if __name__ == "__main__":
+    print(len( prepare_table('smr')))
+    #assemble_dataset('smr')
+    #assemble_dataset('spb')

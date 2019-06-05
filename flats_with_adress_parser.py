@@ -57,11 +57,12 @@ def save_houses(city_abbr):
         
     with_age = []
     for house in [h for i, h in houses.iterrows() if not np.isnan(h.year)]:
-        with_age.append([[round(house.latitude, 6), round(house.longitude, 6)], 2019 - int(house.year)])
+        if house.year >= 1700:
+            with_age.append([[round(house.latitude, 6), round(house.longitude, 6)], 2019 - int(house.year)])
 
     with_floors = []
     for house in [h for i, h in houses.iterrows() if not np.isnan(h.floors)]:
-        with_floors.append([[round(house.latitude, 6), round(house.longitude, 6)], 2019 - int(house.floors)])
+        with_floors.append([[round(house.latitude, 6), round(house.longitude, 6)], int(house.floors)])
 
     with_price= []
     for house in [h for i, h in houses.iterrows()]:
@@ -94,4 +95,4 @@ def save_houses(city_abbr):
 
 
 if __name__ == '__main__':
-    houses = save_houses('smr')
+    houses = save_houses('spb')
